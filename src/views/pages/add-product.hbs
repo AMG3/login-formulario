@@ -1,5 +1,6 @@
 <article>
   {{!-- <form action="name"></form> --}}
+  {{>navigation}}
   <h1>Agregar Nuevo Producto</h1>
   <style>
     * { font-family: "Lobster", cursive; }
@@ -106,33 +107,62 @@
     const email = document.getElementById("email-input");
     const message = document.getElementById("message-input");
     const name = document.getElementById("name-input");
-    const last_name = document.getElementById("last_name-input");
+    const lastName = document.getElementById("last_name-input");
     const age = document.getElementById("age-input")
     const alias = document.getElementById("alias-input")
     const avatar = document.getElementById("avatar-input")
 
-    const required = document.getElementById("required-email");
-    const required = document.getElementById("required-message");
-    const required = document.getElementById("required-name");
-    const required = document.getElementById("required-last_name");
-    const required = document.getElementById("required-age")
-    const required = document.getElementById("required-alias")
-    const required = document.getElementById("required-avatar")
-
+    const requiredEmail = document.getElementById("required-email");
+    const requiredMessage = document.getElementById("required-message");
+    const requiredName = document.getElementById("required-name");
+    const requiredLastName = document.getElementById("required-last_name");
+    const requiredAge = document.getElementById("required-age")
+    const requiredAlias = document.getElementById("required-alias")
+    const requiredAvatar = document.getElementById("required-avatar")
 
     if (email.value === '') {
-      required.style.visibility = 'visible';
+      requiredEmail.style.visibility = 'visible';
+      return;
+    }
+    
+    if (message.value === '') {
+      requiredMessage.style.visibility = 'visible';
+      return;
+    }
+    
+    if (name.value === '') {
+      requiredName.style.visibility = 'visible';
+      return;
+    }
+    
+    if (lastName.value === '') {
+      requiredLastName.style.visibility = 'visible';
+      return;
+    }
+    
+    if (age.value === '') {
+      requiredAge.style.visibility = 'visible';
+      return;
+    }
+    
+    if (alias.value === '') {
+      requiredAlias.style.visibility = 'visible';
+      return;
+    }
+    
+    if (avatar.value === '') {
+      requiredAvatar.style.visibility = 'visible';
       return;
     }
 
-    if (email.value !== '' && message.value !== ''){
-      required.style.visibility = 'hidden';
+    if (email.value !== '' && message.value !== '' && name.value !== '' && lastName.value !== ''&& age.value !== '' && alias.value !== '' && avatar.value !== ''){
+      requiredEmail.style.visibility = 'hidden';
       socket.emit("newMessage", {
         author: {
           email: email.value,
           date: new Date().toLocaleString(),
           name: name.value,
-          last_name: last_name.value,
+          last_name: lastName.value,
           age: age.value,
           alias: alias.value,
           avatar: avatar.value,
@@ -143,7 +173,7 @@
       email.value = '';
       message.value = '';
       name.value = '';
-      last_name.value = '';
+      lastName.value = '';
       age.value = '';
       alias.value = '';
       avatar.value = '';

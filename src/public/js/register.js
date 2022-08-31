@@ -13,5 +13,6 @@ form.addEventListener("submit", (evt) => {
     },
   })
     .then((result) => result.json())
-    .then((json) => console.log(json));
+    .then((json) => console.log(json))
+    .then(() => window.location.replace("/login"));
 });

@@ -10,7 +10,7 @@ import { knexMariaDB, knexSQlite } from "./options/db.js";
 // import { normalizedObject } from "./normalizacion/normalize.js";
 import cookieParser from "cookie-parser";
 import session from "express-session";
-// import MongoStore from "connect-mongo";
+import MongoStore from "connect-mongo";
 import mongoose from "mongoose";
 import userService from "./models/Users.js";
 import sessionService from "./models/Session.js";
@@ -32,15 +32,15 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(
   session({
-    // store: MongoStore.create({
-    //   mongoUrl:
-    //     "mongodb+srv://test:poligamia12345@cluster0.fxygqmb.mongodb.net/?retryWrites=true&w=majority",
-    //   options: { useNewUrlParser: true, useUnifiedTopology: true },
-    //   ttl: 3600, //10//
-    // }),
+    store: MongoStore.create({
+      mongoUrl:
+        "mongodb+srv://test:poligamia12345@cluster0.fxygqmb.mongodb.net/?retryWrites=true&w=majority",
+      options: { useNewUrlParser: true, useUnifiedTopology: true },
+      ttl: 3600, //10//
+    }),
     secret: "palabrasecreta",
-    resave: true, //false//
-    saveUninitialized: true, //false//
+    resave: false, //false//
+    saveUninitialized: false, //false//
   })
 );
 
@@ -87,10 +87,18 @@ io.on("connection", async (socket) => {
 });
 
 app.get("/", (req, res) => {
+  if (!req.session.user) {
+    return res.redirect("/login");
+  }
+
   res.render("pages/add-product", {});
 });
 
 app.get("/products-list", async (req, res) => {
+  if (!req.session.user) {
+    return res.redirect("/login");
+  }
+
   const productList = await products.getAll();
   res.render("pages/products-list", { productList });
 });
@@ -139,6 +147,10 @@ app.get("/set-exp-cookie", (req, res) => {
 // });
 
 app.get("/register", (req, res) => {
+  if (req.session.user) {
+    return res.redirect("/");
+  }
+
   res.render("pages/register");
 });
 
@@ -175,38 +187,42 @@ app.post("/register", async (req, res) => {
 });
 
 app.get("/login", (req, res) => {
+  if (req.session.user) {
+    return res.redirect("/");
+  }
+
   res.render("pages/login");
 });
 
 app.post("/login", async (req, res) => {
   const { email, password } = req.body;
-  if (email === "correoPrueba@correo.com" && password === "123") {
-    req.session.user = {
-      email,
-      role: "user",
-    };
+
+  if (!email || !password) {
+    return res.status(400).send({ error: "Incomplete values" });
+  }
+
+  try {
+    const user = await userService.findOne(
+      { $and: [{ email }, { password }] },
+      { first_name: 1, last_name: 1, email: 1 }
+    );
+
+    if (!user) {
+      return res.status(400).send({ error: "User not found" });
+    }
+
+    req.session.user = user;
 
     const session = {
       email,
       role: "user",
     };
 
-    try {
-      const result = await sessionService.create(session);
-      res.send({ status: "success", payload: result });
-    } catch (error) {
-      res.status(500).send({ error: error });
-    }
-  } else {
-    // let user = users.find((u) => u.email === email && u.password === password);
-    // if (!user) {
-    //   return res.status(400).send({ error: "Incorrect values" });
-    // }
-    // req.session.user = {
-    //   email: user.email,
-    //   role: user.role,
-    // };
-    res.send("Logueado");
+    await sessionService.create(session);
+
+    res.send({ status: "success", payload: user });
+  } catch (error) {
+    res.status(500).send({ error: error });
   }
 });
 
@@ -216,7 +232,9 @@ app.get("/current", (req, res) => {
 
 app.get("/logout", (req, res) => {
   req.session.destroy((err) => {
-    if (err) return res.status(500).send({ error: err });
+    if (err) {
+      return res.status(500).send({ error: err });
+    }
     res.send("Logged out");
   });
 });

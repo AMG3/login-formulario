@@ -13,5 +13,5 @@ form.addEventListener("submit", (evt) => {
     },
   })
     .then((result) => result.json())
-    .then((json) => console.log(json));
+    .then((json) => window.location.replace("/"));
 });
