@@ -23,9 +23,7 @@ const __dirname = dirname(__filename);
 const PORT = 8080;
 const products = new Container(knexMariaDB, "product");
 const chatMessages = new Container(knexSQlite, "message");
-const connection = mongoose.connect(
-  "mongodb+srv://test:password@cluster0.fxygqmb.mongodb.net/?retryWrites=true&w=majority"
-);
+const connection = mongoose.connect(process.env.connection_string);
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -33,8 +31,7 @@ app.use(cookieParser());
 app.use(
   session({
     store: MongoStore.create({
-      mongoUrl:
-        "mongodb+srv://test:password@cluster0.fxygqmb.mongodb.net/?retryWrites=true&w=majority",
+      mongoUrl: process.env.connection_string,
       options: { useNewUrlParser: true, useUnifiedTopology: true },
       ttl: 3600,
     }),
