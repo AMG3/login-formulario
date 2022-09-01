@@ -24,7 +24,7 @@ const PORT = 8080;
 const products = new Container(knexMariaDB, "product");
 const chatMessages = new Container(knexSQlite, "message");
 const connection = mongoose.connect(
-  "mongodb+srv://test:poligamia12345@cluster0.fxygqmb.mongodb.net/?retryWrites=true&w=majority"
+  "mongodb+srv://test:password@cluster0.fxygqmb.mongodb.net/?retryWrites=true&w=majority"
 );
 
 app.use(express.json());
@@ -34,14 +34,13 @@ app.use(
   session({
     store: MongoStore.create({
       mongoUrl:
-        "mongodb+srv://test:poligamia12345@cluster0.fxygqmb.mongodb.net/?retryWrites=true&w=majority",
+        "mongodb+srv://test:password@cluster0.fxygqmb.mongodb.net/?retryWrites=true&w=majority",
       options: { useNewUrlParser: true, useUnifiedTopology: true },
-      ttl: 3600, //10//
+      ttl: 3600,
     }),
     secret: "palabrasecreta",
-    resave: false, //false//
-    saveUninitialized: false, //false//
-    // cookie: { maxAge: 60000 },
+    resave: false,
+    saveUninitialized: false,
   })
 );
 
