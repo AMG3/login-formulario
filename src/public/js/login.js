@@ -1,4 +1,5 @@
 const form = document.getElementById("loginForm");
+const registerBtn = document.getElementById("registerButton");
 
 form.addEventListener("submit", (evt) => {
   evt.preventDefault();
@@ -14,4 +15,8 @@ form.addEventListener("submit", (evt) => {
   })
     .then((result) => result.json())
     .then((json) => window.location.replace("/"));
+});
+
+registerBtn.addEventListener("click", () => {
+  window.location.replace("/register");
 });

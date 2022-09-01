@@ -22,5 +22,10 @@ logout.addEventListener("click", (evt) => {
     headers: {
       "Content-Type": "application/json",
     },
-  }).then(() => window.location.replace("/login"));
+  })
+    .then(() => {
+      document.cookie =
+        "login=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;";
+    })
+    .then(() => window.location.replace("/logout"));
 });

@@ -41,6 +41,7 @@ app.use(
     secret: "palabrasecreta",
     resave: false, //false//
     saveUninitialized: false, //false//
+    // cookie: { maxAge: 60000 },
   })
 );
 
@@ -110,6 +111,10 @@ app.post("/products", async (req, res) => {
 });
 
 app.get("/products-test", async (req, res) => {
+  if (!req.session.user) {
+    return res.redirect("/login");
+  }
+
   const productList = [];
 
   for (let i = 0; i < 5; i++) {
@@ -124,27 +129,6 @@ app.get("/products-test", async (req, res) => {
 
   res.render("pages/products-test", { productList });
 });
-
-app.get("/get-cookie", (req, res) => {
-  console.log(req.cookies);
-  res.send(req.cookies);
-});
-
-app.get("/set-cookie", (req, res) => {
-  res.cookie("cookiePrueba", 1).send("Cookie set");
-});
-
-app.get("/set-exp-cookie", (req, res) => {
-  res
-    .cookie("cookieTermina", "cookie :)", {
-      maxAge: 6000,
-    })
-    .send("Cookie que se setea");
-});
-
-// app.get("/logout", (req, res) => {
-//   res.clearCookie("cookiePrueba").send("no mas cookie");
-// });
 
 app.get("/register", (req, res) => {
   if (req.session.user) {
@@ -220,7 +204,9 @@ app.post("/login", async (req, res) => {
 
     await sessionService.create(session);
 
-    res.send({ status: "success", payload: user });
+    res
+      .cookie("login", "ecommerce", { maxAge: 10000 })
+      .send({ status: "success", payload: user });
   } catch (error) {
     res.status(500).send({ error: error });
   }
@@ -231,12 +217,17 @@ app.get("/current", (req, res) => {
 });
 
 app.get("/logout", (req, res) => {
-  req.session.destroy((err) => {
-    if (err) {
-      return res.status(500).send({ error: err });
-    }
-    res.send("Logged out");
-  });
+  res
+    .clearCookie("login")
+    .render("pages/logout", { user: req.session.user.first_name });
+
+  setTimeout(() => {
+    req.session.destroy((err) => {
+      if (err) {
+        return res.redirect("/login");
+      }
+    });
+  }, 2000);
 });
 
 server.listen(PORT, () => {
